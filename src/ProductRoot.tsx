@@ -21,11 +21,11 @@ import {
 } from "lucide-react";
 import { Workspace } from "./App";
 import { ReviewProvider } from "./store/ReviewStore";
-import { useReview } from "./store/ReviewContext";
 import { CloudReview } from "./store/CloudReview";
 import { ProjectTools } from "./components/ProjectTools";
 import { backendConfigured, supabase } from "./lib/supabase";
-import { check, exportReview, type ProjectRow } from "./lib/reviewApi";
+import { check, type ProjectRow } from "./lib/reviewApi";
+import { ExportRecordButton } from "./components/ExportRecordButton";
 import artV1 from "./artworks/aster-spring-v1.svg";
 import artV2 from "./artworks/aster-spring-v2.svg";
 import "./product.css";
@@ -68,6 +68,7 @@ export function ProductRoot() {
               FrameProof
             </a>
             <span>INTERACTIVE DEMO · LOCAL TO THIS DEVICE</span>
+            <ExportRecordButton />
             <a href="/workspace">
               Use your own artwork <ArrowUpRight size={14} />
             </a>
@@ -712,18 +713,10 @@ function GuestPage() {
             />
           </label>
           <span>Guest names are self-reported.</span>
-          <GuestExport />
+          <ExportRecordButton />
         </div>
         <Workspace />
       </div>
     </CloudReview>
-  );
-}
-function GuestExport() {
-  const r = useReview();
-  return (
-    <button className="fp-btn" onClick={() => exportReview(r, r.projectName)}>
-      Export record
-    </button>
   );
 }

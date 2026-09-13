@@ -1,23 +1,11 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import {
-  Plus,
-  Share2,
-  Download,
-  ArrowLeft,
-  RefreshCw,
-  X,
-  Users,
-} from "lucide-react";
+import { Plus, Share2, ArrowLeft, RefreshCw, X, Users } from "lucide-react";
 import { useReview } from "@/store/ReviewContext";
-import {
-  check,
-  exportReview,
-  uploadRevision,
-  type ReviewLink,
-} from "@/lib/reviewApi";
+import { check, uploadRevision, type ReviewLink } from "@/lib/reviewApi";
 import { supabase } from "@/lib/supabase";
 import { inspectImage } from "@/lib/validation";
 import { useDialog } from "@/lib/useDialog";
+import { ExportRecordButton } from "./ExportRecordButton";
 
 export function ProjectTools({
   projectId,
@@ -51,13 +39,7 @@ export function ProjectTools({
             <RefreshCw size={14} />
             Refresh
           </button>
-          <button
-            className="fp-btn"
-            onClick={() => exportReview(context, context.projectName)}
-          >
-            <Download size={14} />
-            Export record
-          </button>
+          <ExportRecordButton />
           {context.canEdit && (
             <>
               <button className="fp-btn" onClick={() => setModal("members")}>

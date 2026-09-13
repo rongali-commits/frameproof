@@ -6,7 +6,7 @@ The fictional demo is at `/demo`. Private projects require sign-in. Review links
 
 The production edge allowlist is `https://frameproof-visual-re-o866.bolt.host`. For a different deployment, change that setting, the auth site/redirect URLs and the social metadata in `index.html`. Never expose the server service-role key to the browser.
 
-Email confirmation and secure password changes were enabled before final verification. Confirm actual email delivery using your receiving mailbox before inviting real clients. No private client data was used during verification.
+Email confirmation and secure password changes were enabled before final verification. The owner confirmed receipt of the signup email and successful entry into the signed-in production workspace on 13 September 2026. Password-reset delivery remains a separate, untested recovery check. No private client data was used during verification.
 
 ## Recovery
 

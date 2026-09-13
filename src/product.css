@@ -441,6 +441,7 @@ a {
 }
 .fp-demo-top {
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 .fp-demo-top a {
   display: flex;
@@ -1042,4 +1043,31 @@ a {
   .fp-auth-card {
     padding: 24px 20px;
   }
+}
+.fp-export-dialog {
+  max-width: 680px;
+}
+.fp-export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0;
+}
+.fp-export-label {
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.fp-export-label textarea {
+  width: 100%;
+  min-height: 210px;
+  resize: vertical;
+  border: 1px solid #d8d2c8;
+  border-radius: 6px;
+  padding: 12px;
+  background: #f8f6f2;
+  font:
+    12px/1.6 ui-monospace,
+    monospace;
 }
