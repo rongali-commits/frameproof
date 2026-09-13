@@ -8,7 +8,7 @@ import {
   Send,
   Inbox,
 } from "lucide-react";
-import { useReview } from "@/store/ReviewStore";
+import { useReview } from "@/store/ReviewContext";
 import { formatRelativeTime } from "@/lib/format";
 
 export function CommentPanel() {
@@ -28,22 +28,32 @@ export function CommentPanel() {
 
   const versionComments = comments
     .filter(
-      (c) =>
-        c.assetId === selectedAssetId && c.versionId === selectedVersionId
+      (c) => c.assetId === selectedAssetId && c.versionId === selectedVersionId,
     )
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 
-  const [saveError, setSaveError] = useState('');
+  const [saveError, setSaveError] = useState("");
   const handleReply = async (commentId: string) => {
     const text = replyText[commentId]?.trim();
     if (!text) return;
-    try { await addReply(commentId, text); setReplyText((prev) => ({ ...prev, [commentId]: "" })); setSaveError(''); }
-    catch (e) { setSaveError(e instanceof Error ? e.message : 'Reply could not be saved.'); }
+    try {
+      await addReply(commentId, text);
+      setReplyText((prev) => ({ ...prev, [commentId]: "" }));
+      setSaveError("");
+    } catch (e) {
+      setSaveError(
+        e instanceof Error ? e.message : "Reply could not be saved.",
+      );
+    }
   };
 
   return (
     <aside className="fp-comment-panel" aria-label="Comments">
-      {saveError && <p role="alert" className="fp-error-banner">{saveError}</p>}
+      {saveError && (
+        <p role="alert" className="fp-error-banner">
+          {saveError}
+        </p>
+      )}
       <div className="fp-panel-header">
         <MessageSquare size={16} strokeWidth={2} />
         <span className="fp-panel-title">Comments</span>
@@ -68,19 +78,16 @@ export function CommentPanel() {
                 className={`fp-comment-thread ${isSelected ? "fp-comment-selected" : ""} ${
                   comment.resolved ? "fp-comment-resolved" : ""
                 }`}
-                onClick={() => selectComment(isSelected ? null : comment.id)}
-                tabIndex={0}
-                role="button"
-                onKeyDown={(e) => {
-                  if (e.target !== e.currentTarget) return;
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    selectComment(isSelected ? null : comment.id);
-                  }
-                }}
+                role="group"
                 aria-label={`Comment ${idx + 1} by ${comment.author}`}
               >
-                <div className="fp-comment-header">
+                <button
+                  type="button"
+                  className="fp-comment-header fp-comment-select"
+                  onClick={() => selectComment(isSelected ? null : comment.id)}
+                  aria-pressed={isSelected}
+                  aria-label={`Show pin ${idx + 1} by ${comment.author}`}
+                >
                   <span className="fp-comment-pin-num">{idx + 1}</span>
                   <span className="fp-comment-author">{comment.author}</span>
                   <span className="fp-comment-time">
@@ -91,17 +98,14 @@ export function CommentPanel() {
                       <CheckCircle2 size={11} /> Resolved
                     </span>
                   )}
-                </div>
+                </button>
                 <p className="fp-comment-body">{comment.body}</p>
 
                 {comment.replies.length > 0 && (
                   <div className="fp-replies">
                     {comment.replies.map((reply) => (
                       <div key={reply.id} className="fp-reply">
-                        <CornerDownRight
-                          size={12}
-                          className="fp-reply-icon"
-                        />
+                        <CornerDownRight size={12} className="fp-reply-icon" />
                         <div className="fp-reply-content">
                           <div className="fp-reply-meta">
                             <span className="fp-reply-author">
@@ -122,7 +126,7 @@ export function CommentPanel() {
                   <input
                     type="text"
                     maxLength={2000}
-                    onClick={e => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
                     value={replyText[comment.id] ?? ""}
                     onChange={(e) =>
                       setReplyText((prev) => ({
@@ -151,24 +155,28 @@ export function CommentPanel() {
                   </button>
                 </div>
 
-                {canResolve && <button
-                  className="fp-btn fp-btn-text"
-                  disabled={busy}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    Promise.resolve(toggleResolved(comment.id)).catch(e => setSaveError(e.message));
-                  }}
-                >
-                  {comment.resolved ? (
-                    <>
-                      <RotateCcw size={12} /> Reopen
-                    </>
-                  ) : (
-                    <>
-                      <CircleDot size={12} /> Resolve
-                    </>
-                  )}
-                </button>}
+                {canResolve && (
+                  <button
+                    className="fp-btn fp-btn-text"
+                    disabled={busy}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      Promise.resolve(toggleResolved(comment.id)).catch((e) =>
+                        setSaveError(e.message),
+                      );
+                    }}
+                  >
+                    {comment.resolved ? (
+                      <>
+                        <RotateCcw size={12} /> Reopen
+                      </>
+                    ) : (
+                      <>
+                        <CircleDot size={12} /> Resolve
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             );
           })}

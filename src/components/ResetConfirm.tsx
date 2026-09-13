@@ -1,17 +1,29 @@
 import { X, AlertTriangle } from "lucide-react";
+import { useState } from "react";
+import { useDialog } from "@/lib/useDialog";
 
 interface ResetConfirmProps {
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   onCancel: () => void;
 }
 
 export function ResetConfirm({ onConfirm, onCancel }: ResetConfirmProps) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const ref = useDialog(() => {
+    if (!busy) onCancel();
+  });
   return (
     <div
       className="fp-overlay fp-overlay-modal"
-      onClick={onCancel}
+      onClick={() => {
+        if (!busy) onCancel();
+      }}
       role="dialog"
       aria-label="Confirm reset demo"
+      aria-modal="true"
+      ref={ref}
+      tabIndex={-1}
     >
       <div className="fp-confirm-modal" onClick={(e) => e.stopPropagation()}>
         <div className="fp-confirm-header">
@@ -36,8 +48,19 @@ export function ResetConfirm({ onConfirm, onCancel }: ResetConfirmProps) {
           <button className="fp-btn fp-btn-ghost" onClick={onCancel}>
             Cancel
           </button>
-          <button className="fp-btn fp-btn-danger" onClick={onConfirm}>
-            Reset demo
+          {error && <p role="alert">{error}</p>}
+          <button
+            className="fp-btn fp-btn-danger"
+            disabled={busy}
+            onClick={() => {
+              setBusy(true);
+              Promise.resolve(onConfirm()).catch((e) => {
+                setError(e.message);
+                setBusy(false);
+              });
+            }}
+          >
+            {busy ? "Resetting..." : "Reset demo"}
           </button>
         </div>
       </div>

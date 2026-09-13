@@ -110,7 +110,7 @@ describe("Version-specific decision isolation", () => {
   it("a new version starts without inheriting approval", () => {
     const newVersionDecisions = getDecisionHistory(
       mockDecisions,
-      "ver-brand-new"
+      "ver-brand-new",
     );
     expect(newVersionDecisions).toHaveLength(0);
     const latest = getLatestDecision(mockDecisions, "ver-brand-new");

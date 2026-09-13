@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X, Check, AlertTriangle, Clock, History } from "lucide-react";
-import { useReview } from "@/store/ReviewStore";
+import { useReview } from "@/store/ReviewContext";
 import {
   getLatestDecision,
   getDecisionHistory,
@@ -28,7 +28,7 @@ export function DecisionDialog({ onClose }: DecisionDialogProps) {
   const [status, setStatus] = useState<DecisionStatus>("pending");
   const [note, setNote] = useState("");
   const [confirming, setConfirming] = useState(false);
-  const [saveError, setSaveError] = useState('');
+  const [saveError, setSaveError] = useState("");
 
   const asset = assets.find((a) => a.id === selectedAssetId);
   const version = asset?.versions.find((v) => v.id === selectedVersionId);
@@ -43,8 +43,14 @@ export function DecisionDialog({ onClose }: DecisionDialogProps) {
       setConfirming(true);
       return;
     }
-    try { await setDecision(status, note.trim()); onClose(); }
-    catch (e) { setSaveError(e instanceof Error ? e.message : 'Decision could not be saved.'); }
+    try {
+      await setDecision(status, note.trim());
+      onClose();
+    } catch (e) {
+      setSaveError(
+        e instanceof Error ? e.message : "Decision could not be saved.",
+      );
+    }
   };
 
   const statusOptions: {
@@ -102,12 +108,8 @@ export function DecisionDialog({ onClose }: DecisionDialogProps) {
 
         {latest && (
           <div className="fp-decision-current">
-            <span className="fp-decision-current-label">
-              Current status:{" "}
-            </span>
-            <span
-              className={`fp-decision-badge fp-decision-${latest.status}`}
-            >
+            <span className="fp-decision-current-label">Current status: </span>
+            <span className={`fp-decision-badge fp-decision-${latest.status}`}>
               {decisionLabel(latest.status)}
             </span>
             <span className="fp-decision-current-note">
@@ -125,7 +127,10 @@ export function DecisionDialog({ onClose }: DecisionDialogProps) {
                 className={`fp-decision-option ${
                   status === opt.value ? "fp-decision-option-selected" : ""
                 }`}
-                onClick={() => { setStatus(opt.value); setConfirming(false); }}
+                onClick={() => {
+                  setStatus(opt.value);
+                  setConfirming(false);
+                }}
               >
                 <Icon size={16} />
                 <div>
@@ -138,7 +143,9 @@ export function DecisionDialog({ onClose }: DecisionDialogProps) {
         </div>
 
         <div className="fp-decision-note">
-          <label className="fp-field-label" htmlFor="decision-note">Note (optional)</label>
+          <label className="fp-field-label" htmlFor="decision-note">
+            Note (optional)
+          </label>
           <textarea
             id="decision-note"
             maxLength={2000}
@@ -159,9 +166,7 @@ export function DecisionDialog({ onClose }: DecisionDialogProps) {
             <div className="fp-decision-history-list">
               {history.map((d) => (
                 <div key={d.id} className="fp-decision-history-item">
-                  <span
-                    className={`fp-decision-badge fp-decision-${d.status}`}
-                  >
+                  <span className={`fp-decision-badge fp-decision-${d.status}`}>
                     {decisionLabel(d.status)}
                   </span>
                   <span className="fp-decision-history-reviewer">
@@ -212,8 +217,8 @@ export function DecisionDialog({ onClose }: DecisionDialogProps) {
                 status === "approved"
                   ? "fp-btn-success"
                   : status === "changes_requested"
-                  ? "fp-btn-danger"
-                  : "fp-btn-primary"
+                    ? "fp-btn-danger"
+                    : "fp-btn-primary"
               }`}
               onClick={handleSubmit}
               disabled={busy}

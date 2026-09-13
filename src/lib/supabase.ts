@@ -5,12 +5,16 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const backendConfigured = Boolean(supabaseUrl && supabaseAnonKey);
 export const backendUrl = supabaseUrl as string;
-export const supabase = createClient(supabaseUrl || 'http://127.0.0.1:54321', supabaseAnonKey || 'unconfigured', {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
+export const supabase = createClient(
+  supabaseUrl || "http://127.0.0.1:54321",
+  supabaseAnonKey || "unconfigured",
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
   },
-});
+);
 
 export const STORAGE_BUCKET = "frameproof-assets";

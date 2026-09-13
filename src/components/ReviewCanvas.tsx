@@ -6,7 +6,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { Plus, MessageSquare } from "lucide-react";
-import { useReview } from "@/store/ReviewStore";
+import { useReview } from "@/store/ReviewContext";
 import { normalizePin, pinToPercent } from "@/lib/pinMath";
 import type { Pin } from "@/types";
 
@@ -38,8 +38,7 @@ export function ReviewCanvas() {
   const version = asset?.versions.find((v) => v.id === selectedVersionId);
 
   const versionComments = comments.filter(
-    (c) =>
-      c.assetId === selectedAssetId && c.versionId === selectedVersionId
+    (c) => c.assetId === selectedAssetId && c.versionId === selectedVersionId,
   );
 
   const handleImageClick = useCallback(
@@ -54,14 +53,22 @@ export function ReviewCanvas() {
       setAddingPin({ x: rawX, y: rawY, pin });
       setCommentText("");
     },
-    [addingPin]
+    [addingPin],
   );
 
-  const [saveError, setSaveError] = useState('');
+  const [saveError, setSaveError] = useState("");
   const handleSubmitComment = useCallback(async () => {
     if (!addingPin || !commentText.trim()) return;
-    try { await addComment(addingPin.pin, commentText.trim()); setAddingPin(null); setCommentText(''); setSaveError(''); }
-    catch (e) { setSaveError(e instanceof Error ? e.message : 'Comment could not be saved.'); }
+    try {
+      await addComment(addingPin.pin, commentText.trim());
+      setAddingPin(null);
+      setCommentText("");
+      setSaveError("");
+    } catch (e) {
+      setSaveError(
+        e instanceof Error ? e.message : "Comment could not be saved.",
+      );
+    }
   }, [addingPin, commentText, addComment]);
 
   const handleCancelPin = useCallback(() => {
@@ -105,12 +112,9 @@ export function ReviewCanvas() {
             <p>Could not load this artwork.</p>
             <button
               className="fp-btn fp-btn-ghost"
-              onClick={() => {
-                setImageError(false);
-                setImageLoaded(false);
-              }}
+              onClick={() => window.location.reload()}
             >
-              Try again
+              Reload artwork
             </button>
           </div>
         )}
@@ -131,7 +135,16 @@ export function ReviewCanvas() {
             }}
             tabIndex={0}
             role="button"
-            onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setAddingPin({ x: 0, y: 0, pin: { id: "draft", x: 0.5, y: 0.5 } }); } }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setAddingPin({
+                  x: 0,
+                  y: 0,
+                  pin: { id: "draft", x: 0.5, y: 0.5 },
+                });
+              }
+            }}
             aria-label={`${asset.name}, ${version.label}. Click to add a comment pin.`}
           />
           {imageLoaded &&
@@ -147,9 +160,7 @@ export function ReviewCanvas() {
                   style={{ left: pos.left, top: pos.top }}
                   onClick={(e) => {
                     e.stopPropagation();
-                    selectComment(
-                      isSelected ? null : comment.id
-                    );
+                    selectComment(isSelected ? null : comment.id);
                   }}
                   aria-label={`Comment ${idx + 1}: ${comment.body.slice(0, 50)}`}
                 >

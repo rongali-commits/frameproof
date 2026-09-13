@@ -4,7 +4,7 @@ export function normalizePin(
   rawX: number,
   rawY: number,
   width: number,
-  height: number
+  height: number,
 ): Pin {
   if (width <= 0 || height <= 0) {
     return { id: "", x: 0.5, y: 0.5 };

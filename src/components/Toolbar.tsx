@@ -1,20 +1,26 @@
 import { Layers, RotateCcw, Check, MessageSquare } from "lucide-react";
-import { useReview } from "@/store/ReviewStore";
+import { useReview } from "@/store/ReviewContext";
 
 interface ToolbarProps {
   onReset: () => void;
 }
 
 export function Toolbar({ onReset }: ToolbarProps) {
-  const { comments, decisions, selectedAssetId, selectedVersionId, projectName, isDemo } =
-    useReview();
+  const {
+    comments,
+    decisions,
+    selectedAssetId,
+    selectedVersionId,
+    projectName,
+    isDemo,
+  } = useReview();
 
   const assetComments = comments.filter(
-    (c) => c.assetId === selectedAssetId && c.versionId === selectedVersionId
+    (c) => c.assetId === selectedAssetId && c.versionId === selectedVersionId,
   );
   const openCount = assetComments.filter((c) => !c.resolved).length;
   const assetDecisions = decisions.filter(
-    (d) => d.assetId === selectedAssetId && d.versionId === selectedVersionId
+    (d) => d.assetId === selectedAssetId && d.versionId === selectedVersionId,
   );
 
   return (
@@ -26,10 +32,10 @@ export function Toolbar({ onReset }: ToolbarProps) {
         </div>
         <div className="fp-toolbar-divider" />
         <div className="fp-project-info">
-          <div className="fp-project-name">
-            {projectName}
+          <div className="fp-project-name">{projectName}</div>
+          <div className="fp-project-tag">
+            {isDemo ? "Demo project" : "Private project"}
           </div>
-          <div className="fp-project-tag">{isDemo ? "Demo project" : "Private project"}</div>
         </div>
       </div>
       <div className="fp-toolbar-right">
@@ -41,14 +47,16 @@ export function Toolbar({ onReset }: ToolbarProps) {
           <Check size={14} strokeWidth={2} />
           <span>{assetDecisions.length} decisions</span>
         </div>
-        {isDemo && <button
-          className="fp-btn fp-btn-ghost"
-          onClick={onReset}
-          aria-label="Reset demo data"
-        >
-          <RotateCcw size={14} strokeWidth={2} />
-          <span>Reset demo</span>
-        </button>}
+        {isDemo && (
+          <button
+            className="fp-btn fp-btn-ghost"
+            onClick={onReset}
+            aria-label="Reset demo data"
+          >
+            <RotateCcw size={14} strokeWidth={2} />
+            <span>Reset demo</span>
+          </button>
+        )}
       </div>
     </header>
   );

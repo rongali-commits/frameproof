@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, PanelRightOpen } from "lucide-react";
-import { useReview } from "@/store/ReviewStore";
+import { useReview } from "@/store/ReviewContext";
 import { Toolbar } from "@/components/Toolbar";
 import { AssetRail } from "@/components/AssetRail";
 import { ReviewCanvas } from "@/components/ReviewCanvas";
@@ -11,36 +11,70 @@ import { DecisionDialog } from "@/components/DecisionDialog";
 import { UploadDialog } from "@/components/UploadDialog";
 import { ResetConfirm } from "@/components/ResetConfirm";
 import { PROJECT_DESCRIPTION } from "@/demoData";
-import { ProductRoot } from './ProductRoot';
+import { useDialog } from "./lib/useDialog";
 
 export function Workspace() {
-  const { resetDemo, selectedAssetId, selectedVersionId, isDemo, error, dismissError, busy } = useReview();
+  const {
+    resetDemo,
+    selectedAssetId,
+    selectedVersionId,
+    selectedCommentId,
+    assets,
+    isDemo,
+    error,
+    dismissError,
+    busy,
+  } = useReview();
   const [railOpen, setRailOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
   const [showCompare, setShowCompare] = useState(false);
   const [showDecision, setShowDecision] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [showReset, setShowReset] = useState(false);
+  const commentDrawer = useDialog(() => setPanelOpen(false), panelOpen);
+  useEffect(() => {
+    if (selectedCommentId && window.matchMedia("(max-width: 1024px)").matches) {
+      setRailOpen(false);
+      setPanelOpen(true);
+    }
+  }, [selectedCommentId]);
 
   return (
     <div className="fp-app">
       <Toolbar onReset={() => setShowReset(true)} />
-      {error && <div className="fp-error-banner" role="alert">{error}<button onClick={dismissError}>Dismiss</button></div>}
-      {busy && <div className="fp-save-notice" role="status">Saving changes...</div>}
+      {error && (
+        <div className="fp-error-banner" role="alert">
+          {error}
+          <button onClick={dismissError}>Dismiss</button>
+        </div>
+      )}
+      {busy && (
+        <div className="fp-save-notice" role="status">
+          Saving changes...
+        </div>
+      )}
 
       <div className="fp-workspace">
         <div className="fp-mobile-bar">
           <button
             className="fp-icon-btn fp-mobile-toggle"
-            onClick={() => setRailOpen(!railOpen)}
+            onClick={() => {
+              setPanelOpen(false);
+              setRailOpen(!railOpen);
+            }}
             aria-label="Toggle asset list"
           >
             <Menu size={18} />
           </button>
-          <span className="fp-mobile-bar-title">Assets</span>
+          <span className="fp-mobile-bar-title">
+            {assets.find((a) => a.id === selectedAssetId)?.name || "Assets"}
+          </span>
           <button
             className="fp-icon-btn fp-mobile-toggle"
-            onClick={() => setPanelOpen(!panelOpen)}
+            onClick={() => {
+              setRailOpen(false);
+              setPanelOpen(!panelOpen);
+            }}
             aria-label="Toggle comments"
           >
             <PanelRightOpen size={18} />
@@ -53,11 +87,31 @@ export function Workspace() {
           <ReviewCanvas key={`${selectedAssetId}/${selectedVersionId}`} />
         </main>
 
-        <div className={`fp-comments-region ${panelOpen ? "is-open" : ""}`}>
-          <button className="fp-mobile-close fp-btn" onClick={() => setPanelOpen(false)}>Close comments</button>
+        <div
+          ref={commentDrawer}
+          className={`fp-comments-region ${panelOpen ? "is-open" : ""}`}
+          role={panelOpen ? "dialog" : undefined}
+          aria-modal={panelOpen || undefined}
+          aria-label={panelOpen ? "Comments panel" : undefined}
+        >
+          <button
+            className="fp-mobile-close fp-btn"
+            onClick={() => setPanelOpen(false)}
+          >
+            Close comments
+          </button>
           <CommentPanel key={`${selectedAssetId}/${selectedVersionId}`} />
         </div>
-        {(railOpen || panelOpen) && <button className="fp-panel-backdrop" aria-label="Close side panels" onClick={() => { setRailOpen(false); setPanelOpen(false); }} />}
+        {(railOpen || panelOpen) && (
+          <button
+            className="fp-panel-backdrop"
+            aria-label="Close side panels"
+            onClick={() => {
+              setRailOpen(false);
+              setPanelOpen(false);
+            }}
+          />
+        )}
       </div>
 
       <VersionStrip
@@ -67,7 +121,9 @@ export function Workspace() {
       />
 
       <div className="fp-demo-notice">
-        {isDemo ? PROJECT_DESCRIPTION : "Private workspace. Decisions are tied to the exact image revision shown."}
+        {isDemo
+          ? PROJECT_DESCRIPTION
+          : "Private workspace. Decisions are tied to the exact image revision shown."}
       </div>
 
       {showCompare && <CompareView onClose={() => setShowCompare(false)} />}
@@ -77,8 +133,8 @@ export function Workspace() {
       {showUpload && <UploadDialog onClose={() => setShowUpload(false)} />}
       {showReset && (
         <ResetConfirm
-          onConfirm={() => {
-            resetDemo();
+          onConfirm={async () => {
+            await resetDemo();
             setShowReset(false);
           }}
           onCancel={() => setShowReset(false)}
@@ -86,8 +142,4 @@ export function Workspace() {
       )}
     </div>
   );
-}
-
-export default function App() {
-  return <ProductRoot />;
 }
