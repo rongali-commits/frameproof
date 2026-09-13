@@ -1,0 +1,18 @@
+<svg viewBox="0 0 600 800" xmlns="http://www.w3.org/2000/svg" width="600" height="800">
+  <rect width="600" height="800" fill="#EAE4D9"/>
+  <rect x="50" y="50" width="500" height="700" fill="none" stroke="#2A2520" stroke-width="1"/>
+  <text x="80" y="160" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#2A2520" letter-spacing="-1">Bloom</text>
+  <text x="80" y="210" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#2A2520" letter-spacing="-1">Type</text>
+  <text x="80" y="260" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#C84B31" letter-spacing="-1">Specimen</text>
+  <line x1="80" y1="290" x2="520" y2="290" stroke="#2A2520" stroke-width="1.5"/>
+  <text x="80" y="350" font-family="Georgia, serif" font-size="16" fill="#6B6258">Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj</text>
+  <text x="80" y="390" font-family="Georgia, serif" font-size="16" fill="#6B6258">Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt</text>
+  <text x="80" y="430" font-family="Georgia, serif" font-size="16" fill="#6B6258">Uu Vv Ww Xx Yy Zz 0123456789</text>
+  <line x1="80" y1="470" x2="520" y2="470" stroke="#C84B31" stroke-width="1"/>
+  <text x="80" y="520" font-family="Georgia, serif" font-size="14" fill="#2A2520" font-style="italic">The quick brown fox jumps</text>
+  <text x="80" y="550" font-family="Georgia, serif" font-size="14" fill="#2A2520" font-style="italic">over the lazy dog. Pack</text>
+  <text x="80" y="580" font-family="Georgia, serif" font-size="14" fill="#2A2520" font-style="italic">my box with five dozen.</text>
+  <text x="80" y="660" font-family="Georgia, serif" font-size="11" fill="#6B6258" letter-spacing="2">SERIF / REGULAR / 14PT</text>
+  <text x="80" y="690" font-family="Georgia, serif" font-size="11" fill="#6B6258" letter-spacing="2">ASTER STUDIO  2024</text>
+  <text x="520" y="730" text-anchor="end" font-family="Georgia, serif" font-size="11" fill="#6B6258" letter-spacing="2">01 / 03</text>
+</svg>

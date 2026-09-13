@@ -1,0 +1,13 @@
+<svg viewBox="0 0 600 800" xmlns="http://www.w3.org/2000/svg" width="600" height="800">
+  <rect width="600" height="800" fill="#F5F1EA"/>
+  <rect x="40" y="40" width="520" height="720" fill="none" stroke="#2A2520" stroke-width="1.5"/>
+  <text x="300" y="110" text-anchor="middle" font-family="Georgia, serif" font-size="72" font-weight="700" fill="#2A2520" letter-spacing="-2">SPRING</text>
+  <line x1="100" y1="140" x2="500" y2="140" stroke="#C84B31" stroke-width="3"/>
+  <text x="300" y="200" text-anchor="middle" font-family="Georgia, serif" font-size="22" fill="#6B6258" letter-spacing="4">IDENTITY SYSTEM</text>
+  <text x="300" y="430" text-anchor="middle" font-family="Georgia, serif" font-size="180" font-weight="700" fill="#2A2520" letter-spacing="-8">A</text>
+  <text x="300" y="500" text-anchor="middle" font-family="Georgia, serif" font-size="28" fill="#C84B31" letter-spacing="6">ASTER STUDIO</text>
+  <text x="300" y="560" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#6B6258" letter-spacing="2">EST. MMXXIV</text>
+  <line x1="200" y1="620" x2="400" y2="620" stroke="#2A2520" stroke-width="1"/>
+  <text x="300" y="660" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#6B6258" letter-spacing="3">A SEASONAL BRAND IDENTITY</text>
+  <text x="300" y="690" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#6B6258" letter-spacing="3">VOLUME ONE</text>
+</svg>

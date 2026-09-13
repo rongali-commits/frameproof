@@ -1,0 +1,18 @@
+<svg viewBox="0 0 600 800" xmlns="http://www.w3.org/2000/svg" width="600" height="800">
+  <rect width="600" height="800" fill="#F0EBE0"/>
+  <rect x="40" y="40" width="520" height="720" fill="none" stroke="#2A2520" stroke-width="1.5"/>
+  <text x="300" y="130" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#6B6258" letter-spacing="6">FIELD GUIDE</text>
+  <text x="300" y="220" text-anchor="middle" font-family="Georgia, serif" font-size="56" font-weight="700" fill="#2A2520" letter-spacing="-1">Colour</text>
+  <text x="300" y="290" text-anchor="middle" font-family="Georgia, serif" font-size="56" font-weight="700" fill="#2A2520" letter-spacing="-1">&amp; Form</text>
+  <line x1="200" y1="320" x2="400" y2="320" stroke="#C84B31" stroke-width="2"/>
+  <text x="300" y="370" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="#6B6258" letter-spacing="3">A TYPOGRAPHIC POSTER</text>
+  <rect x="120" y="430" width="100" height="100" fill="#2A2520"/>
+  <rect x="250" y="430" width="100" height="100" fill="#C84B31"/>
+  <rect x="380" y="430" width="100" height="100" fill="#6B6258"/>
+  <text x="170" y="560" text-anchor="middle" font-family="Georgia, serif" font-size="11" fill="#6B6258">Graphite</text>
+  <text x="300" y="560" text-anchor="middle" font-family="Georgia, serif" font-size="11" fill="#6B6258">Vermilion</text>
+  <text x="430" y="560" text-anchor="middle" font-family="Georgia, serif" font-size="11" fill="#6B6258">Stone</text>
+  <text x="300" y="650" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="#2A2520" font-style="italic">Three colours, infinite combinations.</text>
+  <text x="300" y="700" text-anchor="middle" font-family="Georgia, serif" font-size="11" fill="#6B6258" letter-spacing="2">ASTER STUDIO  2024</text>
+  <text x="300" y="730" text-anchor="middle" font-family="Georgia, serif" font-size="11" fill="#6B6258" letter-spacing="2">03 / 03</text>
+</svg>
