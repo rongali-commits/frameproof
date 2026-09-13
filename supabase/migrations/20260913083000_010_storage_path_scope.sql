@@ -1,0 +1,7 @@
+-- Qualify the outer storage path: unqualified name inside the subquery means assets.name.
+DROP POLICY IF EXISTS storage_insert_designer_or_admin ON storage.objects;
+CREATE POLICY storage_insert_designer_or_admin ON storage.objects FOR INSERT TO authenticated WITH CHECK (
+ bucket_id='frameproof-assets'
+ AND public.is_project_designer_or_admin((storage.foldername(objects.name))[1]::uuid) IS TRUE
+ AND EXISTS(SELECT 1 FROM public.assets a WHERE a.id=(storage.foldername(objects.name))[2]::uuid AND a.project_id=(storage.foldername(objects.name))[1]::uuid)
+);
