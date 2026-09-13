@@ -1,0 +1,2 @@
+[functions.public-review]
+verify_jwt = false
