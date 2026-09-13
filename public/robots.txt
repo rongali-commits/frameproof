@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /workspace
+Disallow: /project/
+Disallow: /review
+Disallow: /signin
+Disallow: /signup
+Disallow: /reset
