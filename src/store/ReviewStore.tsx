@@ -1,263 +1,105 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import type { ReactNode } from "react";
-import type {
-  Asset,
-  Comment,
-  DecisionRecord,
-  DecisionStatus,
-  Pin,
-  Reply,
-} from "@/types";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import type { Asset, Comment, DecisionRecord, DecisionStatus, Pin, DemoState } from "@/types";
 import { ASSETS, DEMO_COMMENTS, DEMO_DECISIONS } from "@/demoData";
 import { loadState, saveState, clearState } from "@/lib/storage";
 import { clearAllBlobs, putBlob, getBlobURL } from "@/lib/idb";
-import { validateImageFile } from "@/lib/validation";
+import { inspectImage } from "@/lib/validation";
+import { appendRevision } from "@/lib/revisions";
 
-interface ReviewContextValue {
+export interface ReviewContextValue {
   assets: Asset[];
   selectedAssetId: string;
   selectedVersionId: string;
   comments: Comment[];
   decisions: DecisionRecord[];
   selectedCommentId: string | null;
-  selectAsset: (assetId: string) => void;
-  selectVersion: (versionId: string) => void;
-  selectComment: (commentId: string | null) => void;
+  selectAsset: (id: string) => void;
+  selectVersion: (id: string) => void;
+  selectComment: (id: string | null) => void;
   addComment: (pin: Pin, body: string) => void;
-  addReply: (commentId: string, body: string) => void;
-  toggleResolved: (commentId: string) => void;
+  addReply: (id: string, body: string) => void;
+  toggleResolved: (id: string) => void;
   setDecision: (status: DecisionStatus, note: string) => void;
-  uploadVersion: (file: File, replaceVersionTag: "v1" | "v2") => Promise<void>;
+  uploadVersion: (file: File) => Promise<void>;
   resetDemo: () => Promise<void>;
   versionBlobURLs: Record<string, string>;
+  isDemo: boolean;
+  canEdit: boolean;
+  projectName: string;
+  error: string | null;
+  dismissError: () => void;
+  busy: boolean;
 }
 
-const ReviewContext = createContext<ReviewContextValue | null>(null);
-
-function uid(prefix: string): string {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-}
+export const ReviewContext = createContext<ReviewContextValue | null>(null);
+const initial = (): DemoState => loadState() ?? { schemaVersion: 2, assets: ASSETS, comments: DEMO_COMMENTS, decisions: DEMO_DECISIONS, customVersionBlobs: {} };
+export const newId = () => crypto.randomUUID();
+const text = (value: string) => value.trim().slice(0, 4000);
 
 export function ReviewProvider({ children }: { children: ReactNode }) {
-  const [comments, setComments] = useState<Comment[]>(DEMO_COMMENTS);
-  const [decisions, setDecisions] =
-    useState<DecisionRecord[]>(DEMO_DECISIONS);
-  const [selectedAssetId, setSelectedAssetId] = useState(ASSETS[0].id);
-  const [selectedVersionId, setSelectedVersionId] = useState(
-    ASSETS[0].versions[0].id
-  );
-  const [selectedCommentId, setSelectedCommentId] = useState<string | null>(
-    null
-  );
-  const [versionBlobURLs, setVersionBlobURLs] = useState<Record<string, string>>(
-    {}
-  );
-  const loaded = useRef(false);
+  const [state, setState] = useState(initial);
+  const [selectedAssetId, setAsset] = useState(state.assets[0]?.id ?? "");
+  const [selectedVersionId, setVersion] = useState(state.assets[0]?.versions.at(-1)?.id ?? "");
+  const [selectedCommentId, selectComment] = useState<string | null>(null);
+  const [versionBlobURLs, setURLs] = useState<Record<string, string>>({});
+  const [error, setError] = useState<string | null>(null);
+  const uploading = useRef(false);
 
-  // Load persisted state on mount
+  useEffect(() => { try { saveState(state); } catch (e) { setError(String(e)); } }, [state]);
   useEffect(() => {
-    const stored = loadState();
-    if (stored) {
-      setComments(stored.comments);
-      setDecisions(stored.decisions);
-    }
-    loaded.current = true;
-  }, []);
+    let cancelled = false;
+    const created: string[] = [];
+    Promise.all(state.assets.flatMap(a => a.versions).filter(v => v.blobId).map(async v => {
+      const url = await getBlobURL(v.blobId!);
+      if (url) created.push(url);
+      return [v.id, url] as const;
+    })).then(entries => {
+      if (cancelled) { created.forEach(URL.revokeObjectURL); return; }
+      setURLs(Object.fromEntries(entries.filter((e): e is readonly [string, string] => !!e[1])));
+    }).catch(() => { if (!cancelled) setError("Uploaded demo images could not be restored. Check browser storage permissions."); });
+    return () => { cancelled = true; created.forEach(URL.revokeObjectURL); };
+  }, [state.assets]);
 
-  // Persist on changes (after initial load)
-  useEffect(() => {
-    if (!loaded.current) return;
-    saveState({ comments, decisions, customVersionBlobs: {} });
-  }, [comments, decisions]);
-
-  // Restore blob URLs from IndexedDB for uploaded versions
-  useEffect(() => {
-    const customVersions = ASSETS.flatMap((a) => a.versions).filter(
-      (v) => v.isUploaded && v.blobId
-    );
-    customVersions.forEach(async (v) => {
-      if (v.blobId && !versionBlobURLs[v.id]) {
-        const url = await getBlobURL(v.blobId);
-        if (url) {
-          setVersionBlobURLs((prev) => ({ ...prev, [v.id]: url }));
-        }
-      }
-    });
-  }, [versionBlobURLs]);
-
-  const selectAsset = useCallback((assetId: string) => {
-    const asset = ASSETS.find((a) => a.id === assetId);
-    if (asset) {
-      setSelectedAssetId(assetId);
-      setSelectedVersionId(asset.versions[0].id);
-      setSelectedCommentId(null);
-    }
-  }, []);
-
-  const selectVersion = useCallback((versionId: string) => {
-    setSelectedVersionId(versionId);
-    setSelectedCommentId(null);
-  }, []);
-
-  const selectComment = useCallback((commentId: string | null) => {
-    setSelectedCommentId(commentId);
-  }, []);
-
-  const addComment = useCallback(
-    (pin: Pin, body: string) => {
-      const newComment: Comment = {
-        id: uid("c"),
-        assetId: selectedAssetId,
-        versionId: selectedVersionId,
-        pin: { ...pin, id: uid("p") },
-        author: "You",
-        body,
-        createdAt: new Date().toISOString(),
-        resolved: false,
-        replies: [],
-      };
-      setComments((prev) => [...prev, newComment]);
-    },
-    [selectedAssetId, selectedVersionId]
-  );
-
-  const addReply = useCallback((commentId: string, body: string) => {
-    const reply: Reply = {
-      id: uid("r"),
-      author: "You",
-      body,
-      createdAt: new Date().toISOString(),
-    };
-    setComments((prev) =>
-      prev.map((c) =>
-        c.id === commentId ? { ...c, replies: [...c.replies, reply] } : c
-      )
-    );
-  }, []);
-
-  const toggleResolved = useCallback((commentId: string) => {
-    setComments((prev) =>
-      prev.map((c) =>
-        c.id === commentId ? { ...c, resolved: !c.resolved } : c
-      )
-    );
-  }, []);
-
-  const setDecision = useCallback(
-    (status: DecisionStatus, note: string) => {
-      const record: DecisionRecord = {
-        id: uid("d"),
-        assetId: selectedAssetId,
-        versionId: selectedVersionId,
-        status,
-        reviewer: "You",
-        note,
-        createdAt: new Date().toISOString(),
-      };
-      setDecisions((prev) => [...prev, record]);
-    },
-    [selectedAssetId, selectedVersionId]
-  );
-
-  const uploadVersion = useCallback(
-    async (file: File, replaceVersionTag: "v1" | "v2") => {
-      const validation = validateImageFile(file);
-      if (!validation.ok) {
-        throw new Error(validation.error);
-      }
-      const asset = ASSETS.find((a) => a.id === selectedAssetId);
-      if (!asset) return;
-      const targetVersion = asset.versions.find(
-        (v) => v.version === replaceVersionTag
-      );
-      if (!targetVersion) return;
-
-      const blobId = uid("blob");
-      await putBlob(blobId, file);
-
-      const url = URL.createObjectURL(file);
-      setVersionBlobURLs((prev) => ({ ...prev, [targetVersion.id]: url }));
-
-      // Store blob ID mapping in a custom version entry via state
-      // We add a decision-like record noting the upload
-      const record: DecisionRecord = {
-        id: uid("d"),
-        assetId: selectedAssetId,
-        versionId: targetVersion.id,
-        status: "pending",
-        reviewer: "System",
-        note: `Uploaded replacement ${replaceVersionTag}: ${file.name}`,
-        createdAt: new Date().toISOString(),
-      };
-      setDecisions((prev) => [...prev, record]);
-    },
-    [selectedAssetId]
-  );
-
+  const selectAsset = (id: string) => {
+    const asset = state.assets.find(a => a.id === id);
+    if (!asset) return;
+    setAsset(id); setVersion(asset.versions.at(-1)?.id ?? ""); selectComment(null);
+  };
+  const selectVersion = (id: string) => {
+    if (!state.assets.find(a => a.id === selectedAssetId)?.versions.some(v => v.id === id)) return;
+    setVersion(id); selectComment(null);
+  };
+  const addComment = (pin: Pin, body: string) => {
+    if (!text(body)) return;
+    setState(s => ({ ...s, comments: [...s.comments, { id: newId(), assetId: selectedAssetId, versionId: selectedVersionId, pin: { ...pin, id: newId() }, author: "You (demo)", body: text(body), createdAt: new Date().toISOString(), resolved: false, replies: [] }] }));
+  };
+  const addReply = (id: string, body: string) => {
+    if (!text(body)) return;
+    setState(s => ({ ...s, comments: s.comments.map(c => c.id === id ? { ...c, replies: [...c.replies, { id: newId(), author: "You (demo)", body: text(body), createdAt: new Date().toISOString() }] } : c) }));
+  };
+  const toggleResolved = (id: string) => setState(s => ({ ...s, comments: s.comments.map(c => c.id === id ? { ...c, resolved: !c.resolved } : c) }));
+  const setDecision = (status: DecisionStatus, note: string) => setState(s => ({ ...s, decisions: [...s.decisions, { id: newId(), assetId: selectedAssetId, versionId: selectedVersionId, status, reviewer: "You (demo)", note: text(note), createdAt: new Date().toISOString() }] }));
+  const uploadVersion = async (file: File) => {
+    if (uploading.current) throw new Error("An upload is already in progress.");
+    uploading.current = true;
+    try {
+      await inspectImage(file);
+      const id = newId();
+      await putBlob(id, file);
+      setState(s => ({ ...s, assets: s.assets.map(a => a.id === selectedAssetId ? appendRevision(a, { id, blobId: id, src: "", uploadedAt: new Date().toISOString(), isUploaded: true }) : a) }));
+      setVersion(id); selectComment(null);
+    } finally { uploading.current = false; }
+  };
   const resetDemo = useCallback(async () => {
-    clearState();
-    await clearAllBlobs();
-    setComments(DEMO_COMMENTS);
-    setDecisions(DEMO_DECISIONS);
-    setSelectedAssetId(ASSETS[0].id);
-    setSelectedVersionId(ASSETS[0].versions[0].id);
-    setSelectedCommentId(null);
-    setVersionBlobURLs({});
+    await clearAllBlobs(); clearState();
+    setState({ schemaVersion: 2, assets: ASSETS, comments: DEMO_COMMENTS, decisions: DEMO_DECISIONS, customVersionBlobs: {} });
+    setAsset(ASSETS[0].id); setVersion(ASSETS[0].versions.at(-1)!.id); selectComment(null); setError(null);
   }, []);
-
-  const value = useMemo<ReviewContextValue>(
-    () => ({
-      assets: ASSETS,
-      selectedAssetId,
-      selectedVersionId,
-      comments,
-      decisions,
-      selectedCommentId,
-      selectAsset,
-      selectVersion,
-      selectComment,
-      addComment,
-      addReply,
-      toggleResolved,
-      setDecision,
-      uploadVersion,
-      resetDemo,
-      versionBlobURLs,
-    }),
-    [
-      selectedAssetId,
-      selectedVersionId,
-      comments,
-      decisions,
-      selectedCommentId,
-      selectAsset,
-      selectVersion,
-      selectComment,
-      addComment,
-      addReply,
-      toggleResolved,
-      setDecision,
-      uploadVersion,
-      resetDemo,
-      versionBlobURLs,
-    ]
-  );
-
-  return (
-    <ReviewContext.Provider value={value}>{children}</ReviewContext.Provider>
-  );
+  return <ReviewContext.Provider value={{ ...state, selectedAssetId, selectedVersionId, selectedCommentId, selectAsset, selectVersion, selectComment, addComment, addReply, toggleResolved, setDecision, uploadVersion, resetDemo, versionBlobURLs, isDemo: true, canEdit: true, projectName: "Aster Studio / Spring identity", error, dismissError: () => setError(null), busy: false }}>{children}</ReviewContext.Provider>;
 }
 
-export function useReview(): ReviewContextValue {
-  const ctx = useContext(ReviewContext);
-  if (!ctx) throw new Error("useReview must be used within ReviewProvider");
-  return ctx;
+export function useReview() {
+  const value = useContext(ReviewContext);
+  if (!value) throw new Error("ReviewProvider is required.");
+  return value;
 }

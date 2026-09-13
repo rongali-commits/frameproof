@@ -129,6 +129,8 @@ export function ReviewCanvas() {
               setImageLoaded(false);
             }}
             tabIndex={0}
+            role="button"
+            onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setAddingPin({ x: 0, y: 0, pin: { id: "draft", x: 0.5, y: 0.5 } }); } }}
             aria-label={`${asset.name}, ${version.label}. Click to add a comment pin.`}
           />
           {imageLoaded &&
@@ -187,6 +189,8 @@ export function ReviewCanvas() {
             onKeyDown={handleKeyDown}
             placeholder="Write your comment..."
             rows={3}
+            maxLength={4000}
+            aria-label="New pinned comment"
             className="fp-textarea"
           />
           <div className="fp-pin-composer-actions">

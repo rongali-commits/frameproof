@@ -1,4 +1,4 @@
-export type VersionTag = "v1" | "v2";
+export type VersionTag = `v${number}`;
 
 export type DecisionStatus = "pending" | "approved" | "changes_requested";
 
@@ -55,6 +55,8 @@ export interface DecisionRecord {
 }
 
 export interface DemoState {
+  schemaVersion: 2;
+  assets: Asset[];
   comments: Comment[];
   decisions: DecisionRecord[];
   customVersionBlobs: Record<string, string>;

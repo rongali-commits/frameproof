@@ -1,139 +1,26 @@
-import { useRef, useState, useCallback, type MouseEvent } from "react";
+import { useState } from "react";
 import { X } from "lucide-react";
 import { useReview } from "@/store/ReviewStore";
-
-interface CompareViewProps {
-  onClose: () => void;
-}
-
-export function CompareView({ onClose }: CompareViewProps) {
+import { useDialog } from "@/lib/useDialog";
+export function CompareView({ onClose }: { onClose: () => void }) {
   const { assets, selectedAssetId, versionBlobURLs } = useReview();
-  const [sliderPos, setSliderPos] = useState(50);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
-
-  const asset = assets.find((a) => a.id === selectedAssetId);
-  if (!asset) return null;
-
-  const v1 = asset.versions[0];
-  const v2 = asset.versions[1];
-  if (!v1 || !v2) return null;
-
-  const v1Src = versionBlobURLs[v1.id] ?? v1.src;
-  const v2Src = versionBlobURLs[v2.id] ?? v2.src;
-
-  const updateSlider = useCallback((clientX: number) => {
-    const container = containerRef.current;
-    if (!container) return;
-    const rect = container.getBoundingClientRect();
-    const pct = ((clientX - rect.left) / rect.width) * 100;
-    setSliderPos(Math.max(0, Math.min(100, pct)));
-  }, []);
-
-  const handleMouseDown = (e: MouseEvent) => {
-    isDragging.current = true;
-    updateSlider(e.clientX);
-  };
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (isDragging.current) updateSlider(e.clientX);
-  };
-
-  const handleMouseUp = () => {
-    isDragging.current = false;
-  };
-
-  return (
-    <div
-      className="fp-overlay fp-overlay-modal"
-      onClick={onClose}
-      role="dialog"
-      aria-label="Compare versions"
-    >
-      <div
-        className="fp-compare-modal"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="fp-compare-header">
-          <div>
-            <h2 className="fp-compare-title">Compare versions</h2>
-            <p className="fp-compare-sub">{asset.name}</p>
-          </div>
-          <button
-            className="fp-icon-btn"
-            onClick={onClose}
-            aria-label="Close compare view"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="fp-compare-modes">
-          <div className="fp-compare-slider-wrap">
-            <div className="fp-compare-labels">
-              <span className="fp-compare-label-left">{v1.label}</span>
-              <span className="fp-compare-label-right">{v2.label}</span>
-            </div>
-            <div
-              ref={containerRef}
-              className="fp-compare-slider"
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-            >
-              <img
-                src={v2Src}
-                alt={`${asset.name} ${v2.label}`}
-                className="fp-compare-img fp-compare-bottom"
-                draggable={false}
-              />
-              <div
-                className="fp-compare-top-wrap"
-                style={{ width: `${sliderPos}%` }}
-              >
-                <img
-                  src={v1Src}
-                  alt={`${asset.name} ${v1.label}`}
-                  className="fp-compare-img fp-compare-top"
-                  style={{ width: containerRef.current?.clientWidth ?? 0 }}
-                  draggable={false}
-                />
-              </div>
-              <div
-                className="fp-compare-handle"
-                style={{ left: `${sliderPos}%` }}
-              >
-                <div className="fp-compare-handle-line" />
-                <div className="fp-compare-handle-grip">
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <path d="M4 2L2 6L4 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M8 2L10 6L8 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
-            <p className="fp-compare-hint">
-              Drag the handle to compare. Left side shows {v1.label}, right side shows {v2.label}.
-            </p>
-          </div>
-
-          <div className="fp-compare-side-by-side">
-            <div className="fp-compare-side">
-              <span className="fp-compare-side-label">{v1.label}</span>
-              <div className="fp-compare-side-img">
-                <img src={v1Src} alt={`${asset.name} ${v1.label}`} draggable={false} />
-              </div>
-            </div>
-            <div className="fp-compare-side">
-              <span className="fp-compare-side-label">{v2.label}</span>
-              <div className="fp-compare-side-img">
-                <img src={v2Src} alt={`${asset.name} ${v2.label}`} draggable={false} />
-              </div>
-            </div>
-          </div>
-        </div>
+  const asset = assets.find(a => a.id === selectedAssetId);
+  const [left, setLeft] = useState(asset?.versions.at(-2)?.id ?? "");
+  const [right, setRight] = useState(asset?.versions.at(-1)?.id ?? "");
+  const [slider, setSlider] = useState(50);
+  const ref = useDialog(onClose);
+  const v1 = asset?.versions.find(v => v.id === left);
+  const v2 = asset?.versions.find(v => v.id === right);
+  if (!asset || !v1 || !v2) return null;
+  const src1 = versionBlobURLs[v1.id] || v1.src, src2 = versionBlobURLs[v2.id] || v2.src;
+  return <div className="fp-overlay fp-overlay-modal">
+    <div className="fp-compare-modal" role="dialog" aria-modal="true" aria-label="Compare versions" ref={ref} tabIndex={-1}>
+      <header className="fp-compare-header"><div><h2 className="fp-compare-title">See exactly what changed.</h2><p className="fp-compare-sub">{asset.name}</p></div><button className="fp-icon-btn" aria-label="Close compare view" onClick={onClose}><X size={20}/></button></header>
+      <div className="fp-compare-selectors"><label>Before<select aria-label="Before version" value={left} onChange={e => setLeft(e.target.value)}>{asset.versions.map(v => <option key={v.id} value={v.id}>{v.label}</option>)}</select></label><label>After<select aria-label="After version" value={right} onChange={e => setRight(e.target.value)}>{asset.versions.map(v => <option key={v.id} value={v.id}>{v.label}</option>)}</select></label></div>
+      <div className="fp-compare-modes">
+        <div className="fp-compare-slider-wrap"><div className="fp-comparison-stage"><img src={src2} alt={`After: ${v2.label}`} /><img src={src1} alt={`Before: ${v1.label}`} style={{ clipPath: `inset(0 ${100 - slider}% 0 0)` }} /><div className="fp-comparison-divider" style={{ left: `${slider}%` }}/><input type="range" min="0" max="100" value={slider} onChange={e => setSlider(Number(e.target.value))} aria-label="Before and after comparison position" /></div><p className="fp-compare-hint">Drag to reveal. Arrow keys also work. Each complete image is fitted without cropping.</p></div>
+        <div className="fp-compare-side-by-side">{[v1, v2].map((v, i) => <div className="fp-compare-side" key={i}><span className="fp-compare-side-label">{i ? "After" : "Before"} / {v.label}</span><div className="fp-compare-side-img"><img src={versionBlobURLs[v.id] || v.src} alt={`${asset.name} ${v.label} side by side`} /></div></div>)}</div>
       </div>
     </div>
-  );
+  </div>;
 }

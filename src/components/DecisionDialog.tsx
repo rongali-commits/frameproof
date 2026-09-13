@@ -8,12 +8,14 @@ import {
 } from "@/lib/decisions";
 import { formatFullDate } from "@/lib/format";
 import type { DecisionStatus } from "@/types";
+import { useDialog } from "@/lib/useDialog";
 
 interface DecisionDialogProps {
   onClose: () => void;
 }
 
 export function DecisionDialog({ onClose }: DecisionDialogProps) {
+  const dialogRef = useDialog(onClose);
   const {
     assets,
     selectedAssetId,
@@ -75,6 +77,9 @@ export function DecisionDialog({ onClose }: DecisionDialogProps) {
       onClick={onClose}
       role="dialog"
       aria-label="Review decision"
+      aria-modal="true"
+      ref={dialogRef}
+      tabIndex={-1}
     >
       <div className="fp-decision-modal" onClick={(e) => e.stopPropagation()}>
         <div className="fp-decision-header">
@@ -118,7 +123,7 @@ export function DecisionDialog({ onClose }: DecisionDialogProps) {
                 className={`fp-decision-option ${
                   status === opt.value ? "fp-decision-option-selected" : ""
                 }`}
-                onClick={() => setStatus(opt.value)}
+                onClick={() => { setStatus(opt.value); setConfirming(false); }}
               >
                 <Icon size={16} />
                 <div>
@@ -131,8 +136,10 @@ export function DecisionDialog({ onClose }: DecisionDialogProps) {
         </div>
 
         <div className="fp-decision-note">
-          <label className="fp-field-label">Note (optional)</label>
+          <label className="fp-field-label" htmlFor="decision-note">Note (optional)</label>
           <textarea
+            id="decision-note"
+            maxLength={4000}
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Add context for this decision..."

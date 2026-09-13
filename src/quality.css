@@ -1,0 +1,58 @@
+/* Responsive and interaction refinements, shared by demo and private workspaces. */
+html, body, #root { min-width: 320px; }
+:focus-visible { outline: 3px solid #a73720; outline-offset: 3px; }
+button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
+.fp-btn, .fp-icon-btn { min-height: 36px; }
+.fp-comments-region { display: flex; flex-shrink: 0; width: 310px; min-height: 0; }
+.fp-comments-region .fp-comment-panel { display: flex; width: 100%; }
+.fp-mobile-close, .fp-panel-backdrop { display: none; }
+.fp-asset-rail { margin-left: 0; }
+.fp-rail-header .fp-icon-btn { display: none; }
+.fp-version-tabs { min-width: 0; overflow-x: auto; }
+.fp-version-tab { min-width: 146px; }
+.fp-version-strip { min-width: 0; }
+.fp-version-thumb img { object-fit: contain; }
+.fp-comment-body, .fp-reply-body, .fp-project-name { overflow-wrap: anywhere; }
+.fp-upload-modal, .fp-decision-modal, .fp-compare-modal { max-height: 90dvh; overflow-y: auto; }
+.fp-error-banner { background: #fff0eb; border-bottom: 1px solid #b3402a; padding: 12px 20px; font-size: 14px; display: flex; justify-content: space-between; gap: 16px; }
+.fp-error-banner button { text-decoration: underline; }
+.fp-save-notice { position: fixed; z-index: 160; top: 12px; left: 50%; transform: translateX(-50%); padding: 8px 16px; color: white; background: #252321; border-radius: 6px; font-size: 13px; }
+.fp-compare-selectors { display: flex; align-items: center; gap: 16px; padding: 16px 24px; flex-wrap: wrap; }
+.fp-compare-selectors label { font-size: 13px; display: flex; align-items: center; gap: 10px; }
+.fp-compare-selectors select { padding: 8px 12px; border: 1px solid #ccc5bb; background: white; border-radius: 4px; }
+.fp-comparison-stage { position: relative; height: min(48vh, 480px); background: #e8e4dd; overflow: hidden; }
+.fp-comparison-stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.fp-comparison-stage input { position: absolute; z-index: 3; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; }
+.fp-comparison-stage:focus-within { outline: 3px solid #a73720; }
+.fp-comparison-divider { position: absolute; top: 0; bottom: 0; border-left: 2px solid #a73720; pointer-events: none; z-index: 2; }
+.fp-comparison-divider::after { content: "↔"; position: absolute; top: 50%; left: -18px; border-radius: 50%; width: 34px; height: 34px; color: white; background: #a73720; text-align: center; line-height: 34px; }
+@media (min-width: 1025px) { .fp-rail-closed { margin-left: 0; } }
+@media (max-width: 1200px) { .fp-comments-region { width: 280px; } .fp-asset-rail { width: 190px; } .fp-stat { display: none; } .fp-main { padding: 18px; } .fp-version-strip { flex-wrap: wrap; } }
+@media (max-width: 1024px) {
+  .fp-mobile-bar { display: flex; position: absolute; top: 0; left: 0; right: 0; z-index: 5; }
+  .fp-workspace { padding-top: 42px; }
+  .fp-comments-region { display: none; }
+  .fp-comments-region.is-open { display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; right: 0; width: min(360px, 90vw); background: white; z-index: 95; box-shadow: -12px 0 40px #0002; }
+  .fp-comments-region.is-open .fp-mobile-close { display: block; flex-shrink: 0; }
+  .fp-comments-region .fp-comment-panel { min-height: 0; flex: 1; }
+  .fp-panel-backdrop { display: block; position: fixed; inset: 0; background: #0005; z-index: 85; }
+  .fp-asset-rail { display: none; }
+  .fp-asset-rail.fp-rail-open { display: flex; position: fixed; top: 0; bottom: 0; left: 0; width: min(300px, 85vw); z-index: 95; margin: 0; }
+  .fp-rail-header .fp-icon-btn { display: flex; }
+  .fp-strip-actions { margin-left: auto; }
+}
+@media (max-width: 600px) {
+  .fp-project-info, .fp-toolbar-divider { display: none; }
+  .fp-version-tabs { width: 100%; flex-basis: 100%; }
+  .fp-version-strip { padding: 8px 12px; gap: 8px; }
+  .fp-version-tab { min-width: 140px; }
+  .fp-version-info { display: flex; }
+  .fp-strip-actions { justify-content: flex-start; flex-wrap: wrap; width: 100%; }
+  .fp-btn { font-size: 13px; padding: 7px 10px; }
+  .fp-main { padding: 12px; }
+  .fp-demo-notice { font-size: 11px; }
+  .fp-canvas-image { max-height: calc(100dvh - 320px); }
+  .fp-compare-side-by-side { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .fp-compare-modes { padding: 12px; }
+  .fp-upload-dropzone input { width: 100%; font-size: 13px; }
+}
