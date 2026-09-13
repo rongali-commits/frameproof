@@ -2,6 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 process.loadEnvFile(".env.local");
+assert.equal(process.env.FRAMEPROOF_QA_ALLOW_ACCOUNT_CREATION, "yes",
+  "This script creates synthetic accounts and records. Set FRAMEPROOF_QA_ALLOW_ACCOUNT_CREATION=yes only for your named test installation.");
 const url = process.env.VITE_SUPABASE_URL,
   key = process.env.VITE_SUPABASE_ANON_KEY;
 const client = () =>

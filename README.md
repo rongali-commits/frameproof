@@ -28,7 +28,7 @@ Guest links use `/review#<token>`. The fragment avoids including the token in th
 
 ## Verification and limits
 
-`scripts/verify-backend.mjs` creates synthetic accounts and QA-only projects against the configured backend. Run it only against a named test installation. It expects confirmation-disabled test authentication; do not disable production verification just to run it. See `docs/QA.md`.
+`scripts/verify-backend.mjs` creates synthetic accounts and QA-only projects against the configured backend. Run it only against a named test installation, with `FRAMEPROOF_QA_ALLOW_ACCOUNT_CREATION=yes`. It expects confirmation-disabled test authentication; do not disable production verification just to run it. See `docs/QA.md`.
 
 Guest names are self-reported. Links include all revisions of one asset, including new revisions while active. Signed guest image URLs remain valid for up to two minutes after issue. Downloaded files cannot be recalled.
 
