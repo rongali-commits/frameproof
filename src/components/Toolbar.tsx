@@ -1,13 +1,12 @@
 import { Layers, RotateCcw, Check, MessageSquare } from "lucide-react";
 import { useReview } from "@/store/ReviewStore";
-import { PROJECT_NAME, PROJECT_SUBTITLE } from "@/demoData";
 
 interface ToolbarProps {
   onReset: () => void;
 }
 
 export function Toolbar({ onReset }: ToolbarProps) {
-  const { comments, decisions, selectedAssetId, selectedVersionId } =
+  const { comments, decisions, selectedAssetId, selectedVersionId, projectName, isDemo } =
     useReview();
 
   const assetComments = comments.filter(
@@ -28,9 +27,9 @@ export function Toolbar({ onReset }: ToolbarProps) {
         <div className="fp-toolbar-divider" />
         <div className="fp-project-info">
           <div className="fp-project-name">
-            {PROJECT_NAME} / {PROJECT_SUBTITLE}
+            {projectName}
           </div>
-          <div className="fp-project-tag">Demo project</div>
+          <div className="fp-project-tag">{isDemo ? "Demo project" : "Private project"}</div>
         </div>
       </div>
       <div className="fp-toolbar-right">
@@ -42,14 +41,14 @@ export function Toolbar({ onReset }: ToolbarProps) {
           <Check size={14} strokeWidth={2} />
           <span>{assetDecisions.length} decisions</span>
         </div>
-        <button
+        {isDemo && <button
           className="fp-btn fp-btn-ghost"
           onClick={onReset}
           aria-label="Reset demo data"
         >
           <RotateCcw size={14} strokeWidth={2} />
           <span>Reset demo</span>
-        </button>
+        </button>}
       </div>
     </header>
   );

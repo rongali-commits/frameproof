@@ -7,18 +7,11 @@ interface AssetRailProps {
 }
 
 export function AssetRail({ open, onClose }: AssetRailProps) {
-  const { assets, selectedAssetId, selectAsset, selectedVersionId } =
+  const { assets, selectedAssetId, selectAsset, selectedVersionId, versionBlobURLs } =
     useReview();
 
   return (
     <>
-      {open && (
-        <div
-          className="fp-overlay"
-          onClick={onClose}
-          aria-hidden="true"
-        />
-      )}
       <aside
         className={`fp-asset-rail ${open ? "fp-rail-open" : "fp-rail-closed"}`}
         aria-label="Asset list"
@@ -43,14 +36,14 @@ export function AssetRail({ open, onClose }: AssetRailProps) {
               <button
                 key={asset.id}
                 className={`fp-asset-card ${isActive ? "fp-asset-active" : ""}`}
-                onClick={() => selectAsset(asset.id)}
+                onClick={() => { selectAsset(asset.id); onClose(); }}
               >
                 <div className="fp-asset-thumb">
-                  <img
-                    src={asset.versions[0].src}
+                  {asset.versions.length > 0 ? <img
+                    src={versionBlobURLs[asset.versions[0].id] || asset.versions[0].src}
                     alt={asset.name}
                     loading="lazy"
-                  />
+                  /> : <span>No image yet</span>}
                 </div>
                 <div className="fp-asset-meta">
                   <div className="fp-asset-name">{asset.name}</div>

@@ -12,10 +12,10 @@ import { UploadDialog } from "@/components/UploadDialog";
 import { ResetConfirm } from "@/components/ResetConfirm";
 import { PROJECT_DESCRIPTION } from "@/demoData";
 
-function Workspace() {
-  const { resetDemo } = useReview();
-  const [railOpen, setRailOpen] = useState(true);
-  const [panelOpen, setPanelOpen] = useState(true);
+export function Workspace() {
+  const { resetDemo, selectedAssetId, selectedVersionId, isDemo, error, dismissError, busy } = useReview();
+  const [railOpen, setRailOpen] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
   const [showCompare, setShowCompare] = useState(false);
   const [showDecision, setShowDecision] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
@@ -24,6 +24,8 @@ function Workspace() {
   return (
     <div className="fp-app">
       <Toolbar onReset={() => setShowReset(true)} />
+      {error && <div className="fp-error-banner" role="alert">{error}<button onClick={dismissError}>Dismiss</button></div>}
+      {busy && <div className="fp-save-notice" role="status">Saving changes...</div>}
 
       <div className="fp-workspace">
         <div className="fp-mobile-bar">
@@ -47,14 +49,14 @@ function Workspace() {
         <AssetRail open={railOpen} onClose={() => setRailOpen(false)} />
 
         <main className="fp-main">
-          <ReviewCanvas />
+          <ReviewCanvas key={`${selectedAssetId}/${selectedVersionId}`} />
         </main>
 
-        <CommentPanel />
-
-        <div className={`fp-panel-mobile ${panelOpen ? "fp-panel-mobile-open" : ""}`}>
-          <CommentPanel />
+        <div className={`fp-comments-region ${panelOpen ? "is-open" : ""}`}>
+          <button className="fp-mobile-close fp-btn" onClick={() => setPanelOpen(false)}>Close comments</button>
+          <CommentPanel key={`${selectedAssetId}/${selectedVersionId}`} />
         </div>
+        {(railOpen || panelOpen) && <button className="fp-panel-backdrop" aria-label="Close side panels" onClick={() => { setRailOpen(false); setPanelOpen(false); }} />}
       </div>
 
       <VersionStrip
@@ -64,7 +66,7 @@ function Workspace() {
       />
 
       <div className="fp-demo-notice">
-        {PROJECT_DESCRIPTION}
+        {isDemo ? PROJECT_DESCRIPTION : "Private workspace. Decisions are tied to the exact image revision shown."}
       </div>
 
       {showCompare && <CompareView onClose={() => setShowCompare(false)} />}

@@ -68,6 +68,7 @@ export function CommentPanel() {
                 tabIndex={0}
                 role="button"
                 onKeyDown={(e) => {
+                  if (e.target !== e.currentTarget) return;
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
                     selectComment(isSelected ? null : comment.id);
@@ -116,6 +117,8 @@ export function CommentPanel() {
                 <div className="fp-reply-input">
                   <input
                     type="text"
+                    maxLength={4000}
+                    onClick={e => e.stopPropagation()}
                     value={replyText[comment.id] ?? ""}
                     onChange={(e) =>
                       setReplyText((prev) => ({
@@ -124,6 +127,7 @@ export function CommentPanel() {
                       }))
                     }
                     onKeyDown={(e) => {
+                      e.stopPropagation();
                       if (e.key === "Enter") {
                         e.preventDefault();
                         handleReply(comment.id);
