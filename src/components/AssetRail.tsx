@@ -1,5 +1,6 @@
-import { useReview } from "@/store/ReviewStore";
+import { useReview } from "@/store/ReviewContext";
 import { ChevronLeft } from "lucide-react";
+import { useDialog } from "@/lib/useDialog";
 
 interface AssetRailProps {
   open: boolean;
@@ -7,14 +8,23 @@ interface AssetRailProps {
 }
 
 export function AssetRail({ open, onClose }: AssetRailProps) {
-  const { assets, selectedAssetId, selectAsset, selectedVersionId, versionBlobURLs } =
-    useReview();
+  const ref = useDialog(onClose, open);
+  const {
+    assets,
+    selectedAssetId,
+    selectAsset,
+    selectedVersionId,
+    versionBlobURLs,
+  } = useReview();
 
   return (
     <>
-      <aside
+      <div
+        ref={ref}
         className={`fp-asset-rail ${open ? "fp-rail-open" : "fp-rail-closed"}`}
         aria-label="Asset list"
+        role={open ? "dialog" : "complementary"}
+        aria-modal={open || undefined}
       >
         <div className="fp-rail-header">
           <span className="fp-rail-title">Assets</span>
@@ -30,20 +40,30 @@ export function AssetRail({ open, onClose }: AssetRailProps) {
           {assets.map((asset) => {
             const isActive = asset.id === selectedAssetId;
             const activeVersion = asset.versions.find(
-              (v) => v.id === selectedVersionId
+              (v) => v.id === selectedVersionId,
             );
             return (
               <button
                 key={asset.id}
                 className={`fp-asset-card ${isActive ? "fp-asset-active" : ""}`}
-                onClick={() => { selectAsset(asset.id); onClose(); }}
+                onClick={() => {
+                  selectAsset(asset.id);
+                  onClose();
+                }}
               >
                 <div className="fp-asset-thumb">
-                  {asset.versions.length > 0 ? <img
-                    src={versionBlobURLs[asset.versions[0].id] || asset.versions[0].src}
-                    alt={asset.name}
-                    loading="lazy"
-                  /> : <span>No image yet</span>}
+                  {asset.versions.length > 0 ? (
+                    <img
+                      src={
+                        versionBlobURLs[asset.versions[0].id] ||
+                        asset.versions[0].src
+                      }
+                      alt={asset.name}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span>No image yet</span>
+                  )}
                 </div>
                 <div className="fp-asset-meta">
                   <div className="fp-asset-name">{asset.name}</div>
@@ -58,7 +78,7 @@ export function AssetRail({ open, onClose }: AssetRailProps) {
             );
           })}
         </div>
-      </aside>
+      </div>
     </>
   );
 }

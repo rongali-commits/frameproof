@@ -1,5 +1,7 @@
 # FrameProof Backend Documentation
 
+> Initial foundation reference. Migrations 007-010 add guest links, harden immutable fields, correct version allocation and storage paths, and refine project creation. The current README, migrations and `docs/QA.md` take precedence over original summaries below.
+
 ## Overview
 
 FrameProof uses Supabase for data persistence, authentication, and file storage. The backend consists of seven workspace tables, a private storage bucket, and one server-side RPC function. All access control is enforced at the database level through Row Level Security (RLS) policies and SECURITY DEFINER helper functions.

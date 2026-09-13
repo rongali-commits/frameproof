@@ -11,12 +11,10 @@ describe("Version-specific comment filtering", () => {
 
   it("comments are scoped to a specific version, not just the asset", () => {
     const springV1Comments = DEMO_COMMENTS.filter(
-      (c) =>
-        c.assetId === "asset-spring" && c.versionId === "ver-spring-v1"
+      (c) => c.assetId === "asset-spring" && c.versionId === "ver-spring-v1",
     );
     const springV2Comments = DEMO_COMMENTS.filter(
-      (c) =>
-        c.assetId === "asset-spring" && c.versionId === "ver-spring-v2"
+      (c) => c.assetId === "asset-spring" && c.versionId === "ver-spring-v2",
     );
 
     expect(springV1Comments.length).toBeGreaterThan(0);
@@ -35,7 +33,7 @@ describe("Version-specific comment filtering", () => {
 
     allVersionIds.forEach((versionId) => {
       const versionComments = DEMO_COMMENTS.filter(
-        (c) => c.versionId === versionId
+        (c) => c.versionId === versionId,
       );
       versionComments.forEach((c) => {
         expect(c.versionId).toBe(versionId);
@@ -45,7 +43,7 @@ describe("Version-specific comment filtering", () => {
 
   it("no comment belongs to a nonexistent version", () => {
     const validVersionIds = new Set(
-      ASSETS.flatMap((a) => a.versions.map((v) => v.id))
+      ASSETS.flatMap((a) => a.versions.map((v) => v.id)),
     );
     DEMO_COMMENTS.forEach((c) => {
       expect(validVersionIds.has(c.versionId)).toBe(true);
@@ -78,7 +76,7 @@ describe("Version-specific decision isolation", () => {
 
   it("decisions reference valid version IDs", () => {
     const validVersionIds = new Set(
-      ASSETS.flatMap((a) => a.versions.map((v) => v.id))
+      ASSETS.flatMap((a) => a.versions.map((v) => v.id)),
     );
     DEMO_DECISIONS.forEach((d) => {
       expect(validVersionIds.has(d.versionId)).toBe(true);
@@ -88,9 +86,7 @@ describe("Version-specific decision isolation", () => {
 
 describe("Asset version structure", () => {
   it("each version has a unique ID", () => {
-    const allVersionIds = ASSETS.flatMap((a) =>
-      a.versions.map((v) => v.id)
-    );
+    const allVersionIds = ASSETS.flatMap((a) => a.versions.map((v) => v.id));
     const uniqueIds = new Set(allVersionIds);
     expect(uniqueIds.size).toBe(allVersionIds.length);
   });

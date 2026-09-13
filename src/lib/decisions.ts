@@ -2,7 +2,7 @@ import type { DecisionRecord, DecisionStatus } from "@/types";
 
 export function getLatestDecision(
   decisions: DecisionRecord[],
-  versionId: string
+  versionId: string,
 ): DecisionRecord | null {
   const filtered = decisions
     .filter((d) => d.versionId === versionId)
@@ -12,7 +12,7 @@ export function getLatestDecision(
 
 export function getDecisionHistory(
   decisions: DecisionRecord[],
-  versionId: string
+  versionId: string,
 ): DecisionRecord[] {
   return decisions
     .filter((d) => d.versionId === versionId)
