@@ -20,6 +20,7 @@ try {
   const anon=await anonymous.from('projects').select('id').eq('id',project.id);assert(anon.error||anon.data.length===0);ok('Anonymous user cannot read workspace tables');
   assert((await owner.from('projects').update({owner_id:otherId}).eq('id',project.id)).error);ok('Project owner cannot rewrite ownership column');
   const asset=check(await owner.from('assets').insert({project_id:project.id,name:'QA Image',subtitle:'Test image'}).select().single());
+  ok('Asset creation succeeds');
   async function revision(assetId=asset.id){const path=`${project.id}/${assetId}/${randomUUID()}.png`;check(await owner.storage.from('frameproof-assets').upload(path,png,{contentType:'image/png'}));const id=check(await owner.rpc('allocate_version',{p_asset_id:assetId,p_storage_path:path,p_width:1,p_height:1,p_original_name:'qa.png'}));return{id,path};}
   const v1=await revision();ok('Private upload and atomic revision registration');
   assert((await outsider.rpc('allocate_version',{p_asset_id:asset.id,p_storage_path:v1.path,p_width:1,p_height:1,p_original_name:'qa.png'})).error);ok('Nullable outsider role cannot bypass allocation authorization');
