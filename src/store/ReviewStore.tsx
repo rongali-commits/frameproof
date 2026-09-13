@@ -16,15 +16,16 @@ export interface ReviewContextValue {
   selectAsset: (id: string) => void;
   selectVersion: (id: string) => void;
   selectComment: (id: string | null) => void;
-  addComment: (pin: Pin, body: string) => void;
-  addReply: (id: string, body: string) => void;
-  toggleResolved: (id: string) => void;
-  setDecision: (status: DecisionStatus, note: string) => void;
+  addComment: (pin: Pin, body: string) => void | Promise<void>;
+  addReply: (id: string, body: string) => void | Promise<void>;
+  toggleResolved: (id: string) => void | Promise<void>;
+  setDecision: (status: DecisionStatus, note: string) => void | Promise<void>;
   uploadVersion: (file: File) => Promise<void>;
   resetDemo: () => Promise<void>;
   versionBlobURLs: Record<string, string>;
   isDemo: boolean;
   canEdit: boolean;
+  canResolve: boolean;
   projectName: string;
   error: string | null;
   dismissError: () => void;
@@ -34,7 +35,7 @@ export interface ReviewContextValue {
 export const ReviewContext = createContext<ReviewContextValue | null>(null);
 const initial = (): DemoState => loadState() ?? { schemaVersion: 2, assets: ASSETS, comments: DEMO_COMMENTS, decisions: DEMO_DECISIONS, customVersionBlobs: {} };
 export const newId = () => crypto.randomUUID();
-const text = (value: string) => value.trim().slice(0, 4000);
+const text = (value: string) => value.trim().slice(0, 2000);
 
 export function ReviewProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState(initial);
@@ -95,7 +96,7 @@ export function ReviewProvider({ children }: { children: ReactNode }) {
     setState({ schemaVersion: 2, assets: ASSETS, comments: DEMO_COMMENTS, decisions: DEMO_DECISIONS, customVersionBlobs: {} });
     setAsset(ASSETS[0].id); setVersion(ASSETS[0].versions.at(-1)!.id); selectComment(null); setError(null);
   }, []);
-  return <ReviewContext.Provider value={{ ...state, selectedAssetId, selectedVersionId, selectedCommentId, selectAsset, selectVersion, selectComment, addComment, addReply, toggleResolved, setDecision, uploadVersion, resetDemo, versionBlobURLs, isDemo: true, canEdit: true, projectName: "Aster Studio / Spring identity", error, dismissError: () => setError(null), busy: false }}>{children}</ReviewContext.Provider>;
+  return <ReviewContext.Provider value={{ ...state, selectedAssetId, selectedVersionId, selectedCommentId, selectAsset, selectVersion, selectComment, addComment, addReply, toggleResolved, setDecision, uploadVersion, resetDemo, versionBlobURLs, isDemo: true, canEdit: true, canResolve: true, projectName: "Aster Studio / Spring identity", error, dismissError: () => setError(null), busy: false }}>{children}</ReviewContext.Provider>;
 }
 
 export function useReview() {

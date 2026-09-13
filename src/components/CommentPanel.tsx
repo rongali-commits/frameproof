@@ -20,6 +20,8 @@ export function CommentPanel() {
     selectComment,
     addReply,
     toggleResolved,
+    canResolve,
+    busy,
   } = useReview();
 
   const [replyText, setReplyText] = useState<Record<string, string>>({});
@@ -31,15 +33,17 @@ export function CommentPanel() {
     )
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 
-  const handleReply = (commentId: string) => {
+  const [saveError, setSaveError] = useState('');
+  const handleReply = async (commentId: string) => {
     const text = replyText[commentId]?.trim();
     if (!text) return;
-    addReply(commentId, text);
-    setReplyText((prev) => ({ ...prev, [commentId]: "" }));
+    try { await addReply(commentId, text); setReplyText((prev) => ({ ...prev, [commentId]: "" })); setSaveError(''); }
+    catch (e) { setSaveError(e instanceof Error ? e.message : 'Reply could not be saved.'); }
   };
 
   return (
     <aside className="fp-comment-panel" aria-label="Comments">
+      {saveError && <p role="alert" className="fp-error-banner">{saveError}</p>}
       <div className="fp-panel-header">
         <MessageSquare size={16} strokeWidth={2} />
         <span className="fp-panel-title">Comments</span>
@@ -117,7 +121,7 @@ export function CommentPanel() {
                 <div className="fp-reply-input">
                   <input
                     type="text"
-                    maxLength={4000}
+                    maxLength={2000}
                     onClick={e => e.stopPropagation()}
                     value={replyText[comment.id] ?? ""}
                     onChange={(e) =>
@@ -140,18 +144,19 @@ export function CommentPanel() {
                   <button
                     className="fp-icon-btn fp-send-btn"
                     onClick={() => handleReply(comment.id)}
-                    disabled={!replyText[comment.id]?.trim()}
+                    disabled={busy || !replyText[comment.id]?.trim()}
                     aria-label="Send reply"
                   >
                     <Send size={14} />
                   </button>
                 </div>
 
-                <button
+                {canResolve && <button
                   className="fp-btn fp-btn-text"
+                  disabled={busy}
                   onClick={(e) => {
                     e.stopPropagation();
-                    toggleResolved(comment.id);
+                    Promise.resolve(toggleResolved(comment.id)).catch(e => setSaveError(e.message));
                   }}
                 >
                   {comment.resolved ? (
@@ -163,7 +168,7 @@ export function CommentPanel() {
                       <CircleDot size={12} /> Resolve
                     </>
                   )}
-                </button>
+                </button>}
               </div>
             );
           })}

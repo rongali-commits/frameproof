@@ -20,6 +20,7 @@ export function ReviewCanvas() {
     selectComment,
     addComment,
     versionBlobURLs,
+    busy,
   } = useReview();
 
   const imgRef = useRef<HTMLImageElement>(null);
@@ -56,11 +57,11 @@ export function ReviewCanvas() {
     [addingPin]
   );
 
-  const handleSubmitComment = useCallback(() => {
+  const [saveError, setSaveError] = useState('');
+  const handleSubmitComment = useCallback(async () => {
     if (!addingPin || !commentText.trim()) return;
-    addComment(addingPin.pin, commentText.trim());
-    setAddingPin(null);
-    setCommentText("");
+    try { await addComment(addingPin.pin, commentText.trim()); setAddingPin(null); setCommentText(''); setSaveError(''); }
+    catch (e) { setSaveError(e instanceof Error ? e.message : 'Comment could not be saved.'); }
   }, [addingPin, commentText, addComment]);
 
   const handleCancelPin = useCallback(() => {
@@ -189,18 +190,19 @@ export function ReviewCanvas() {
             onKeyDown={handleKeyDown}
             placeholder="Write your comment..."
             rows={3}
-            maxLength={4000}
+            maxLength={2000}
             aria-label="New pinned comment"
             className="fp-textarea"
           />
           <div className="fp-pin-composer-actions">
+            {saveError && <p role="alert">{saveError}</p>}
             <span className="fp-pin-hint">
               Click to place. Cmd+Enter to post. Esc to cancel.
             </span>
             <button
               className="fp-btn fp-btn-primary"
               onClick={handleSubmitComment}
-              disabled={!commentText.trim()}
+              disabled={busy || !commentText.trim()}
             >
               Post comment
             </button>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Menu, PanelRightOpen } from "lucide-react";
-import { ReviewProvider, useReview } from "@/store/ReviewStore";
+import { useReview } from "@/store/ReviewStore";
 import { Toolbar } from "@/components/Toolbar";
 import { AssetRail } from "@/components/AssetRail";
 import { ReviewCanvas } from "@/components/ReviewCanvas";
@@ -11,6 +11,7 @@ import { DecisionDialog } from "@/components/DecisionDialog";
 import { UploadDialog } from "@/components/UploadDialog";
 import { ResetConfirm } from "@/components/ResetConfirm";
 import { PROJECT_DESCRIPTION } from "@/demoData";
+import { ProductRoot } from './ProductRoot';
 
 export function Workspace() {
   const { resetDemo, selectedAssetId, selectedVersionId, isDemo, error, dismissError, busy } = useReview();
@@ -88,9 +89,5 @@ export function Workspace() {
 }
 
 export default function App() {
-  return (
-    <ReviewProvider>
-      <Workspace />
-    </ReviewProvider>
-  );
+  return <ProductRoot />;
 }

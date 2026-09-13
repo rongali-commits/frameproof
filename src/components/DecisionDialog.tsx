@@ -22,11 +22,13 @@ export function DecisionDialog({ onClose }: DecisionDialogProps) {
     selectedVersionId,
     decisions,
     setDecision,
+    busy,
   } = useReview();
 
   const [status, setStatus] = useState<DecisionStatus>("pending");
   const [note, setNote] = useState("");
   const [confirming, setConfirming] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const asset = assets.find((a) => a.id === selectedAssetId);
   const version = asset?.versions.find((v) => v.id === selectedVersionId);
@@ -36,13 +38,13 @@ export function DecisionDialog({ onClose }: DecisionDialogProps) {
   const latest = getLatestDecision(decisions, version.id);
   const history = getDecisionHistory(decisions, version.id);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!confirming) {
       setConfirming(true);
       return;
     }
-    setDecision(status, note.trim());
-    onClose();
+    try { await setDecision(status, note.trim()); onClose(); }
+    catch (e) { setSaveError(e instanceof Error ? e.message : 'Decision could not be saved.'); }
   };
 
   const statusOptions: {
@@ -139,7 +141,7 @@ export function DecisionDialog({ onClose }: DecisionDialogProps) {
           <label className="fp-field-label" htmlFor="decision-note">Note (optional)</label>
           <textarea
             id="decision-note"
-            maxLength={4000}
+            maxLength={2000}
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Add context for this decision..."
@@ -178,6 +180,7 @@ export function DecisionDialog({ onClose }: DecisionDialogProps) {
         )}
 
         <div className="fp-decision-footer">
+          {saveError && <p role="alert">{saveError}</p>}
           {confirming && (
             <div className="fp-decision-confirm">
               <p>
@@ -213,6 +216,7 @@ export function DecisionDialog({ onClose }: DecisionDialogProps) {
                   : "fp-btn-primary"
               }`}
               onClick={handleSubmit}
+              disabled={busy}
             >
               {confirming ? "Confirm decision" : "Continue"}
             </button>
