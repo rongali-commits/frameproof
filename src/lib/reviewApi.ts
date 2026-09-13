@@ -269,33 +269,3 @@ export async function loadGuest(token: string) {
     expiry: body.expires_at,
   };
 }
-
-export function exportReview(snapshot: Snapshot, projectName: string) {
-  const blob = new Blob(
-    [
-      JSON.stringify(
-        {
-          project: projectName,
-          exportedAt: new Date().toISOString(),
-          notice:
-            "Review activity record, not an electronic signature. Guest names are self-reported.",
-          assets: snapshot.assets.map((a) => ({
-            ...a,
-            versions: a.versions.map(({ src, ...v }) => v),
-          })),
-          comments: snapshot.comments,
-          decisions: snapshot.decisions,
-        },
-        null,
-        2,
-      ),
-    ],
-    { type: "application/json" },
-  );
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "frameproof-review-record.json";
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
