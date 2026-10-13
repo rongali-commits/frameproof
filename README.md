@@ -2,7 +2,7 @@
 
 [![Checks](https://github.com/rongali-commits/frameproof/actions/workflows/ci.yml/badge.svg)](https://github.com/rongali-commits/frameproof/actions/workflows/ci.yml)
 
-[Case study](https://noerong.com/projects/frameproof) Â· [Live demo](https://frameproof-visual-re-o866.bolt.host) Â· [Contact](https://noerong.com/contact) Â· [Checks](https://github.com/rongali-commits/frameproof/actions)
+[Case study](https://noerong.com/projects/frameproof) · [Live demo](https://frameproof-visual-re-o866.bolt.host) · [Contact](https://noerong.com/contact) · [Checks](https://github.com/rongali-commits/frameproof/actions)
 
 ![FrameProof image review with fictional artwork and people](docs/screenshot.png)
 
