@@ -42,8 +42,8 @@ Approval means the latest recorded decision for one revision, not unanimous sign
 
 Enterprise retention, malware scanning, backup automation, abuse CAPTCHA, storage billing and automated account erasure are not included. Configure operational controls before a broader commercial SaaS launch. Browser file decoding is a usability check, not a server security boundary.
 
-## Provenance
+## Ownership and demo data
 
-Original Noerong product. Bolt created the initial canvas and database foundation. Local engineering added the product interface, connected workflows, tests, accessibility refinements and security corrections. Bolt handles focused backend deployment and hosting. Do not claim that every line was generated solely in Bolt or that badge approval is guaranteed.
+FrameProof is developed and maintained by Noerong. It uses React, TypeScript, Vite and Supabase, with Bolt for backend deployment and hosting.
 
 Aster Studio artwork and demo people are fictional. No invented customer testimonials or metrics. Dependencies retain their licenses; commercial source rights are supplied separately by Noerong.
