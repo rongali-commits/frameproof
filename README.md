@@ -46,4 +46,4 @@ Enterprise retention, malware scanning, backup automation, abuse CAPTCHA, storag
 
 FrameProof is developed and maintained by Noerong. It uses React, TypeScript, Vite and Supabase, with Bolt for backend deployment and hosting.
 
-Aster Studio artwork and demo people are fictional. No invented customer testimonials or metrics. Dependencies retain their licenses; commercial source rights are supplied separately by Noerong.
+Aster Studio artwork and demo people are fictional. No invented customer testimonials or metrics. Dependencies retain their licenses; commercial source rights are supplied separately by Noerong. See [LICENSE.md](LICENSE.md).
